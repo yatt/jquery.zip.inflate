@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+    <script src="./jquery.zip.js"></script>
+
+    <script type="text/javascript">
+function addentry(zip, name, parentNode)
+{
+    var e = zip.files[name]
+    
+    var h4 = $('<h4>')
+    var p = $('<p>')
+
+    h4.text(e.name)
+    p.text(e.inflate())
+
+    parentNode.append(h4)
+    parentNode.append(p)
+}
+
+function test_ajax(filepath, specDataType){
+    var option = {
+        url: filepath,
+        success: function(zip){
+            var div = $('<div>')
+            var suffix = 'with'+ (specDataType?' ':'out ') +'datatype specify'
+            div.append($('<h2>').text(filepath + ' ' + suffix))
+            for (var name in zip.files)
+                addentry(zip, name, div)
+            $('#container').append(div)
+        },
+        error: function(data, stat, err){
+            console.log('error: ' + data + ',' + stat + ',' + err)
+        },
+        complete: function(data){
+        },
+    }
+
+    if (specDataType)
+        option.dataType = 'zip'
+
+    $.ajax(option)
+}
+
+function test_get(filepath)
+{
+    $.get(filepath, function(zip){
+        var div = $('<div>')
+        div.append($('<h2>').text(filepath + ' using $.get'))
+        for (var name in zip.files)
+            addentry(zip, name, div)
+        $('#container').append(div)
+    })
+}
+
+function test_post(filepath)
+{
+    $.post(filepath, function(zip){
+        var div = $('<div>')
+        div.append($('<h2>').text(filepath + ' using $.get'))
+        for (var name in zip.files)
+            addentry(zip, name, div)
+        $('#container').append(div)
+    })
+}
+
+function test_text()
+{
+    $.get('./test.json', function(data){
+        var elem = $('<div>')
+        var text = $(data.key).map(function(i,n){ return n }).get().join(',')
+        elem.text(text)
+        $('#container').append(elem)
+    }, 'json')
+}
+
+$(function(){
+    // 要テスト
+    // /test.php?ar=test.zip&lang=C みたいなの。content-type見るタイプ
+    // /hoge みたいなの。同じくcontent-typeみるタイプ
+    test_text()
+    
+    test_ajax('./test_utf8.zip', false)
+    test_ajax('./test_utf8.zip', true)
+    test_ajax('./test_cp932.zip', false)
+    test_ajax('./test_cp932.zip', true)
+    
+    test_get('./test_utf8.zip')
+
+    //test_post('./test_utf8.zip')
+})
+    </script>
+</head>
+<body>
+    <p id='jsontest'></p>
+    <div id='container'></div>
+</body>
+</html>
