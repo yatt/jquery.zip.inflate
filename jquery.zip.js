@@ -57,7 +57,7 @@ function unpack(blob)
  */
 $.extend({
     zip: {
-        inflate: Zip.inflate, 
+        inflate: $.Zip.inflate, 
         unpack: unpack
     }
 })
